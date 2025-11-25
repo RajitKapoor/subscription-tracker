@@ -13,14 +13,38 @@ export function Signup() {
 
   const handleSubmit = async (email, password) => {
     setError(null)
-    const { error: signUpError } = await signUp(email, password)
+    try {
+      const { data, error: signUpError } = await signUp(email, password)
 
-    if (signUpError) {
-      setError(signUpError.message)
-    } else {
-      // Sign up successful, navigate to dashboard
-      // Note: Supabase may require email confirmation depending on settings
-      navigate('/dashboard')
+      if (signUpError) {
+        // Handle different error types
+        let errorMessage = signUpError.message || 'An error occurred during signup'
+        
+        // Provide more helpful error messages
+        if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+          errorMessage = 'Failed to connect to server. Please check your internet connection and ensure Supabase is properly configured.'
+        } else if (errorMessage.includes('email')) {
+          errorMessage = 'Invalid email address. Please check and try again.'
+        } else if (errorMessage.includes('password')) {
+          errorMessage = 'Password must be at least 6 characters long.'
+        }
+        
+        setError(errorMessage)
+      } else if (data?.user) {
+        // Sign up successful
+        // Note: Supabase may require email confirmation depending on settings
+        // If email confirmation is required, user will be null but session might exist
+        if (data.session) {
+          navigate('/dashboard')
+        } else {
+          // Email confirmation required
+          setError('Please check your email to confirm your account before signing in.')
+        }
+      }
+    } catch (err) {
+      // Catch any unexpected errors
+      console.error('Unexpected signup error:', err)
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 

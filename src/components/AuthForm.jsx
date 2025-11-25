@@ -21,6 +21,10 @@ export function AuthForm({ mode, onSubmit, error }) {
     setLoading(true)
     try {
       await onSubmit(email, password)
+    } catch (err) {
+      // This should not happen if onSubmit handles errors properly,
+      // but catch it just in case
+      console.error('Form submission error:', err)
     } finally {
       setLoading(false)
     }

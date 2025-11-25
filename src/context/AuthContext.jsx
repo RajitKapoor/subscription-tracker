@@ -39,11 +39,54 @@ export function AuthProvider({ children }) {
    * @returns {Promise<{error: Error|null, data: object|null}>}
    */
   const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    return { data, error }
+    try {
+      // Check if Supabase client is properly initialized
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      // Safe check - verify they exist, are strings, and not empty/placeholder
+      const urlValid = supabaseUrl && 
+                       typeof supabaseUrl === 'string' && 
+                       supabaseUrl.trim() !== '' && 
+                       supabaseUrl !== 'https://placeholder.supabase.co'
+      const keyValid = supabaseAnonKey && 
+                       typeof supabaseAnonKey === 'string' && 
+                       supabaseAnonKey.trim() !== '' && 
+                       supabaseAnonKey !== 'placeholder-key'
+      
+      if (!urlValid || !keyValid) {
+        console.error('Supabase configuration check failed:')
+        console.error('VITE_SUPABASE_URL:', supabaseUrl || 'undefined', `(type: ${typeof supabaseUrl})`)
+        console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '***' + supabaseAnonKey.slice(-4) : 'undefined', `(type: ${typeof supabaseAnonKey})`)
+        console.error('All VITE_ env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')))
+        return {
+          data: null,
+          error: {
+            message: 'Supabase is not configured. Please check your .env.local file and restart the dev server.'
+          }
+        }
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+      
+      if (error) {
+        return { data, error }
+      }
+      
+      return { data, error: null }
+    } catch (err) {
+      // Catch network errors and other exceptions
+      console.error('Signup error:', err)
+      return {
+        data: null,
+        error: {
+          message: err.message || 'Failed to connect to server. Please check your internet connection and try again.'
+        }
+      }
+    }
   }
 
   /**
@@ -53,11 +96,54 @@ export function AuthProvider({ children }) {
    * @returns {Promise<{error: Error|null, data: object|null}>}
    */
   const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { data, error }
+    try {
+      // Check if Supabase client is properly initialized
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      // Safe check - verify they exist, are strings, and not empty/placeholder
+      const urlValid = supabaseUrl && 
+                       typeof supabaseUrl === 'string' && 
+                       supabaseUrl.trim() !== '' && 
+                       supabaseUrl !== 'https://placeholder.supabase.co'
+      const keyValid = supabaseAnonKey && 
+                       typeof supabaseAnonKey === 'string' && 
+                       supabaseAnonKey.trim() !== '' && 
+                       supabaseAnonKey !== 'placeholder-key'
+      
+      if (!urlValid || !keyValid) {
+        console.error('Supabase configuration check failed:')
+        console.error('VITE_SUPABASE_URL:', supabaseUrl || 'undefined', `(type: ${typeof supabaseUrl})`)
+        console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '***' + supabaseAnonKey.slice(-4) : 'undefined', `(type: ${typeof supabaseAnonKey})`)
+        console.error('All VITE_ env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')))
+        return {
+          data: null,
+          error: {
+            message: 'Supabase is not configured. Please check your .env.local file and restart the dev server.'
+          }
+        }
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (error) {
+        return { data, error }
+      }
+      
+      return { data, error: null }
+    } catch (err) {
+      // Catch network errors and other exceptions
+      console.error('Signin error:', err)
+      return {
+        data: null,
+        error: {
+          message: err.message || 'Failed to connect to server. Please check your internet connection and try again.'
+        }
+      }
+    }
   }
 
   /**

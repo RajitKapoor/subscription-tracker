@@ -13,12 +13,31 @@ export function Login() {
 
   const handleSubmit = async (email, password) => {
     setError(null)
-    const { error: signInError } = await signIn(email, password)
+    try {
+      const { data, error: signInError } = await signIn(email, password)
 
-    if (signInError) {
-      setError(signInError.message)
-    } else {
-      navigate('/dashboard')
+      if (signInError) {
+        // Handle different error types
+        let errorMessage = signInError.message || 'An error occurred during sign in'
+        
+        // Provide more helpful error messages
+        if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+          errorMessage = 'Failed to connect to server. Please check your internet connection and ensure Supabase is properly configured.'
+        } else if (errorMessage.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.'
+        } else if (errorMessage.includes('Email not confirmed')) {
+          errorMessage = 'Please confirm your email address before signing in. Check your inbox for the confirmation link.'
+        }
+        
+        setError(errorMessage)
+      } else if (data?.user || data?.session) {
+        // Sign in successful
+        navigate('/dashboard')
+      }
+    } catch (err) {
+      // Catch any unexpected errors
+      console.error('Unexpected signin error:', err)
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 

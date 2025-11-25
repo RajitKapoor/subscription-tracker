@@ -35,7 +35,7 @@ A modern, production-ready subscription tracking web application built with Reac
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/RajitKapoor/subscription-tracker.git
    cd subscription-tracker
    ```
 
